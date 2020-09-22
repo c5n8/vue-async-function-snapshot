@@ -1,65 +1,58 @@
 <template>
-  <div class="container">
-    <div>
-      <Logo />
-      <h1 class="title">incubator</h1>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--green"
-        >
-          Documentation
-        </a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--grey"
-        >
-          GitHub
-        </a>
+  <div>
+    <div v-if="generation.isStandby">
+      <div>Generate number 1-1000</div>
+      <button @click="generate()">Start</button>
+    </div>
+    <div v-else-if="generation.isPending">Generating...</div>
+    <div v-else-if="generation.isSettled">
+      <div v-if="generation.isFulfilled">
+        {{ generation.result }}
       </div>
+      <div v-else-if="generation.isRejected">
+        {{ generation.error }}
+      </div>
+
+      <button @click="generate()">Retry</button>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
+<script>
+import vue from 'vue'
+import compositionApi from '@vue/composition-api'
+import { useAsyncFunctionSnapshot } from '~/src'
 
-export default Vue.extend({})
+vue.use(compositionApi)
+
+export default {
+  setup() {
+    const generation = useAsyncFunctionSnapshot(async (min, max) => {
+      await new Promise((resolve) => setTimeout(resolve, random(200, 2000)))
+
+      if (random(0, 1)) {
+        throw new Error('Failed to generate')
+      }
+
+      return random(min, max)
+    })
+
+    async function generate() {
+      try {
+        await generation.start(1, 1000)
+      } catch (error) {
+        //
+      }
+    }
+
+    return {
+      generation,
+      generate,
+    }
+  },
+}
+
+function random(min, max) {
+  return Math.floor(Math.random() * Math.floor(max - min + 1)) + min
+}
 </script>
-
-<style>
-.container {
-  margin: 0 auto;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.title {
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
-.links {
-  padding-top: 15px;
-}
-</style>

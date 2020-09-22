@@ -7,7 +7,7 @@
       "ESNext",
       "ESNext.AsyncIterable",
       "DOM"
-    ],
+    ],  
     "esModuleInterop": true,
     "allowJs": true,
     "sourceMap": true,
@@ -25,7 +25,8 @@
     },
     "types": [
       "@types/node",
-      "@nuxt/types"
+      "@nuxt/types",
+      "jest"
     ]
   },
   "exclude": [
